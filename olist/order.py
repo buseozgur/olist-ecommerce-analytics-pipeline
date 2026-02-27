@@ -55,7 +55,14 @@ class Order:
         Returns a DataFrame with:
         order_id, dim_is_five_star, dim_is_one_star, review_score
         """
-        pass  # YOUR CODE HERE
+        reviews = self.data['order_reviews'].copy()
+
+        # Create review_score DataFrame
+        review_score = reviews[["order_id", "review_score"]].copy()
+        review_score["dim_is_five_star"] = np.where(review_score["review_score"]==5,1,0)
+        review_score["dim_is_one_star"] = np.where(review_score["review_score"]==1,1,0)
+
+        return review_score
 
     def get_number_items(self):
         """
