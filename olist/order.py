@@ -20,7 +20,35 @@ class Order:
         and filters out non-delivered orders unless specified
         """
         # Hint: Within this instance method, you have access to the instance of the class Order in the variable self, as well as all its attributes
-        pass  # YOUR CODE HERE
+        orders = self.data["orders"].copy()
+
+        # Filter the delivered orders and change the date_cols to datetime
+        if is_delivered:
+            wait_df = orders[orders["order_status"]=="delivered"].copy()
+
+        date_cols = [
+            "order_purchase_timestamp",
+            "order_delivered_customer_date",
+            "order_estimated_delivery_date"
+            ]
+        wait_df[date_cols] = wait_df[date_cols].apply(pd.to_datetime)
+
+        # Creating the wait_time, expected_wait_time and delay_vs_expected columns
+        wait_df["wait_time"] = (wait_df["order_delivered_customer_date"] - wait_df["order_purchase_timestamp"]) /np.timedelta64(1, "D")
+        wait_df["expected_wait_time"] = (wait_df["order_estimated_delivery_date"] - wait_df["order_purchase_timestamp"]) /np.timedelta64(1, "D")
+        wait_df["delay_vs_expected"] = (
+            wait_df["wait_time"] - wait_df["expected_wait_time"]
+            )
+        wait_df["delay_vs_expected"] = wait_df["delay_vs_expected"].clip(lower=0)
+
+        wait_df = wait_df[["order_id",
+                  "wait_time",
+                  "expected_wait_time",
+                  "delay_vs_expected",
+                  "order_status"]]
+
+        return wait_df
+
 
     def get_review_score(self):
         """
