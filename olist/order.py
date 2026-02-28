@@ -109,7 +109,7 @@ class Order:
         Returns a DataFrame with:
         order_id, distance_seller_customer
         """
-        pass  # YOUR CODE HERE
+        pass
 
     def get_training_data(self,
                           is_delivered=True,
@@ -123,3 +123,18 @@ class Order:
         """
         # Hint: make sure to re-use your instance methods defined above
         pass  # YOUR CODE HERE
+
+        wait_df = self.get_wait_time()
+        review_score = self.get_review_score()
+        number_items = self.get_number_items()
+        number_seller = self.get_number_sellers()
+        price_freight = self.get_price_and_freight()
+
+        training_data = wait_df.merge(review_score, on="order_id", how="inner")
+        training_data = training_data.merge(number_items, on="order_id", how="left")
+        training_data = training_data.merge(number_seller, on="order_id", how="left")
+        training_data = training_data.merge(price_freight, on="order_id", how="left")
+
+        training_data.dropna(inplace=True)
+
+        return training_data
